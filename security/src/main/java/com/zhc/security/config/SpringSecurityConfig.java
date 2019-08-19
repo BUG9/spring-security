@@ -15,23 +15,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableWebSecurity
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        super.configure(auth);
-    }
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        super.configure(web);
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin()
             .and()
                 .authorizeRequests()
-                .mvcMatchers("/index","/").permitAll()
+                .antMatchers("/index","/").permitAll()
                 .anyRequest().authenticated();
     }
 }
