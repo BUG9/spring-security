@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <lombok.version>1.16.20</lombok.version>
     </properties>
 
     <modules>
@@ -24,6 +25,13 @@
     </modules>
 
     <dependencies>
+        <!--通过使用spring-boot-configuration-processor
+        可以很容易地从带有@ConfigurationProperties注释的项生成自己的配置元数据文件。 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -36,6 +44,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!--Lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
         </dependency>
     </dependencies>
 
