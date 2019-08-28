@@ -1,8 +1,15 @@
 server:
   port: 8080
 
+spring:
+  datasource:
+    url: jdbc:mysql://47.112.8.89:4466/security?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: swpu.mysql.root.1
+    driver-class-name: com.mysql.jdbc.Driver
 
-# 做一个类似 security一样的默认登陆页面功能，进一步的理解 Spring Boot 的 默认配置含义及设计思想
+
+#
 #security:
 #  login:
 #    loginPage: /loginDemo.html

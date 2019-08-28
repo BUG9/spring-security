@@ -34,7 +34,7 @@ public class FormAuthenticationConfig {
                 // 注意1：这里修改后的 url 会意味着  UsernamePasswordAuthenticationFilter 将 验证此处的 url
                 // 注意2： 与 loginPage设置的接口地址是有 区别, 一但 loginPage 设置了的是访问接口url，那么此处配置将无任何意义
                 // 注意3： 这里设置的 Url 是有默认无权限访问的
-                .loginProcessingUrl("/loginUp")
+                .loginProcessingUrl(securityProperties.getLogin().getLoginUrl())
                 //分别设置成功和失败的处理器
                 .successHandler(customAuthenticationSuccessHandler)
                 .failureHandler(customAuthenticationFailureHandler);
