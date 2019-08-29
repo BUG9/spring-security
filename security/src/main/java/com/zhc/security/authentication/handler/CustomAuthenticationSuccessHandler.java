@@ -1,4 +1,4 @@
-package com.zhc.security.authentication;
+package com.zhc.security.authentication.handler;
 
 import com.zhc.security.properties.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;

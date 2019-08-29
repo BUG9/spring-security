@@ -1,5 +1,7 @@
 package com.zhc.security.config;
 
+import com.zhc.security.authentication.FormAuthenticationConfig;
+import com.zhc.security.authentication.sms.SmsCodeAuthenticationSecurityConfig;
 import com.zhc.security.properties.SecurityConstants;
 import com.zhc.security.properties.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +36,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private UserDetailsService userDetailsService;
 
+    @Resource
+    private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
 
     @Bean
     public PersistentTokenRepository persistentTokenRepository(){
@@ -49,7 +53,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
         formAuthenticationConfig.configure(http);
 
-        http.authorizeRequests()
+        http.apply(smsCodeAuthenticationSecurityConfig)
+                .and()
+                .authorizeRequests()
                 .antMatchers(SecurityConstants.DEFAULT_PAGE_URL,
                         SecurityConstants.DEFAULT_LOGIN_PAGE_URL,
                         securityProperties.getLogin().getLoginErrorUrl()).permitAll()

@@ -1,7 +1,7 @@
-package com.zhc.security.config;
+package com.zhc.security.authentication;
 
-import com.zhc.security.authentication.CustomAuthenticationFailureHandler;
-import com.zhc.security.authentication.CustomAuthenticationSuccessHandler;
+import com.zhc.security.authentication.handler.CustomAuthenticationFailureHandler;
+import com.zhc.security.authentication.handler.CustomAuthenticationSuccessHandler;
 import com.zhc.security.properties.SecurityProperties;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.stereotype.Component;
@@ -9,8 +9,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 /**
- * 表单登录配置
+ * @author zhc
+ * @date 2019/8/14
  */
+
 @Component
 public class FormAuthenticationConfig {
 

@@ -2,6 +2,10 @@ package com.zhc.security.properties;
 
 import lombok.Data;
 
+/**
+ * @author zhc
+ * @date 2019/8/14
+ */
 @Data
 public class LoginProperties {
     /**

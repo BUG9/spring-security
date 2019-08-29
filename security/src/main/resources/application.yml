@@ -1,15 +1,17 @@
 server:
   port: 8080
 
-spring:
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3600/security?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
-    username: root
-    password:
-    driver-class-name: com.mysql.jdbc.Driver
 
-
-#
+# 做一个类似 security一样的默认登陆页面功能，进一步的理解 Spring Boot 的 默认配置含义及设计思想
 #security:
 #  login:
 #    loginPage: /loginDemo.html
+
+spring:
+  application:
+    name: security
+  datasource:
+    url: jdbc:mysql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:3306}/security
+    username: ${POSTGRES_USERNAME:root}
+    password: ${POSTGRES_PASSWORD:zhao-324}
+    driver-class-name:  com.mysql.jdbc.Driver
