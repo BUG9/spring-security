@@ -17,4 +17,6 @@ public class SecurityProperties {
 
     private LoginProperties login = new LoginProperties();
 
+    private SmsProperties sms = new SmsProperties();
+
 }

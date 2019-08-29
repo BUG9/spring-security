@@ -2,6 +2,7 @@ package com.zhc.security.config;
 
 import com.zhc.security.authentication.FormAuthenticationConfig;
 import com.zhc.security.authentication.sms.SmsCodeAuthenticationSecurityConfig;
+import com.zhc.security.authentication.sms.SmsValidateCodeFilter;
 import com.zhc.security.properties.SecurityConstants;
 import com.zhc.security.properties.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
@@ -37,10 +39,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Resource
+    private SmsValidateCodeFilter validateCodeFilter;
+
+    @Resource
     private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
 
     @Bean
-    public PersistentTokenRepository persistentTokenRepository(){
+    public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
         // 如果token表不存在，使用下面语句可以初始化 persistent_logins（ddl在db目录下） 表；若存在，请注释掉这条语句，否则会报错。
@@ -53,11 +58,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
         formAuthenticationConfig.configure(http);
 
-        http.apply(smsCodeAuthenticationSecurityConfig)
+        http.addFilterBefore(validateCodeFilter, AbstractPreAuthenticatedProcessingFilter.class)
+                .apply(smsCodeAuthenticationSecurityConfig)
                 .and()
                 .authorizeRequests()
                 .antMatchers(SecurityConstants.DEFAULT_PAGE_URL,
                         SecurityConstants.DEFAULT_LOGIN_PAGE_URL,
+                        "/send/sms/*",
                         securityProperties.getLogin().getLoginErrorUrl()).permitAll()
                 .anyRequest().authenticated()
                 .and()
