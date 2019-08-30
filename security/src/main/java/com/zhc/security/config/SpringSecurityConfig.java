@@ -2,7 +2,7 @@ package com.zhc.security.config;
 
 import com.zhc.security.authentication.FormAuthenticationConfig;
 import com.zhc.security.authentication.sms.SmsCodeAuthenticationSecurityConfig;
-import com.zhc.security.authentication.sms.SmsValidateCodeFilter;
+import com.zhc.security.authentication.sms.ValidateCodeFilter;
 import com.zhc.security.properties.SecurityConstants;
 import com.zhc.security.properties.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +39,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Resource
-    private SmsValidateCodeFilter validateCodeFilter;
+    private ValidateCodeFilter validateCodeFilter;
 
     @Resource
     private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;

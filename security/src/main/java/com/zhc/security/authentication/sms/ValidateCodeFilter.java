@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 图形验证码和短信验证码过滤器
+ * 验证码过滤器
  */
 @Component
-public class SmsValidateCodeFilter extends OncePerRequestFilter implements InitializingBean {
+public class ValidateCodeFilter extends OncePerRequestFilter implements InitializingBean {
 
     /**
      * 验证码校验失败处理器
