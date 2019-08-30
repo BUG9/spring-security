@@ -14,7 +14,11 @@
 
 
     <dependencies>
-
+        <!-- 不是starter,手动配置 -->
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
