@@ -5,6 +5,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
@@ -69,6 +70,11 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
      */
     protected void setDetails(HttpServletRequest request, SmsCodeAuthenticationToken authRequest) {
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+    }
+
+    @Override
+    public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        super.setRememberMeServices(rememberMeServices);
     }
 
     public String getMobileParameter() {

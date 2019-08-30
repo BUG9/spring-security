@@ -29,7 +29,7 @@ public class LoginProperties {
     /**
      *  记住我有效时间，默认 3600 （ms）
      */
-    private int rememberMeSeconds = 1;
+    private int rememberMeSeconds = 3600;
 
     /**
      * 登录失败跳转Url
