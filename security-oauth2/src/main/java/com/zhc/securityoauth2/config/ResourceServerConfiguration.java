@@ -17,6 +17,10 @@ public class ResourceServerConfiguration  extends ResourceServerConfigurerAdapte
     public void configure(HttpSecurity http) throws Exception {
 
         http
+                .requestMatchers().anyRequest()
+                .and()
+                .anonymous()
+                .and()
                 .authorizeRequests()
                 //配置oauth2访问控制，必须认证过后才可以访问
                 .antMatchers("/oauth2/**").authenticated();

@@ -9,6 +9,7 @@
     </parent>
     <artifactId>social</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>social</name>
     <description>Demo project for Spring Boot</description>
 
