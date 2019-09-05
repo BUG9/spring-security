@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -25,12 +26,13 @@ import javax.annotation.Resource;
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
+
     @Resource
-    private RedisConnectionFactory redisConnectionFactory;
+    private TokenStore jwtTokenStore;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-        resources.tokenStore(new RedisTokenStore(redisConnectionFactory));
+        resources.tokenStore(jwtTokenStore);
     }
 
     @Override

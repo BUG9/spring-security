@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 
 import javax.annotation.Resource;
@@ -24,8 +25,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Resource
     private AuthenticationManager authenticationManager;
+
     @Resource
-    private RedisConnectionFactory redisConnectionFactory;
+    private TokenStore jwtTokenStore;
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -42,7 +44,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         // 设置token存储方式，这里采用redis
         endpoints
-                .tokenStore(new RedisTokenStore(redisConnectionFactory))
+                .tokenStore(jwtTokenStore)
                 .authenticationManager(authenticationManager);
     }
 

@@ -12,5 +12,28 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>security-core</name>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- 不是starter,手动配置 -->
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+            <!--请注意下 spring-security-oauth2 的版本 务必高于 2.3.2.RELEASE，这是官方的一个bug:
+            java.lang.NoSuchMethodError: org.springframework.data.redis.connection.RedisConnection.set([B[B)V
+            要求必须大于2.3.5 版本，官方解释：https://github.com/BUG9/spring-security/network/alert/pom.xml/org.springframework.security.oauth:spring-security-oauth2/open
+            -->
+            <version>2.3.5.RELEASE</version>
+        </dependency>
+    </dependencies>
 </project>
