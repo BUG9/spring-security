@@ -3,12 +3,15 @@ package com.zhc.security.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 
@@ -29,6 +32,12 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Resource
     private TokenStore jwtTokenStore;
 
+    @Resource
+    private AccessTokenConverter jwtAccessTokenConverter;
+
+    @Resource
+    private TokenEnhancerChain tokenEnhancerChain;
+
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         //配置一个客户端，支持客户端模式、密码模式和授权码模式
@@ -42,9 +51,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        // 设置token存储方式，这里采用redis
+        // 设置token存储方式，这里提供redis和jwt
         endpoints
                 .tokenStore(jwtTokenStore)
+                .accessTokenConverter(jwtAccessTokenConverter)
+                .tokenEnhancer(tokenEnhancerChain)
                 .authenticationManager(authenticationManager);
     }
 

@@ -7,12 +7,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 
 /**
  * @author zhc
@@ -72,6 +74,18 @@ public class TokenStoreConfig {
         @ConditionalOnMissingBean(name = "jwtTokenEnhancer")
         public TokenEnhancer jwtTokenEnhancer(){
             return new JwtTokenEnhance();
+        }
+
+        /**
+         * 自定义token
+         *
+         * @return tokenEnhancerChain
+         */
+        @Bean
+        public TokenEnhancerChain tokenEnhancerChain() {
+            TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+            tokenEnhancerChain.setTokenEnhancers(Arrays.asList(new JwtTokenEnhance(), jwtAccessTokenConverter()));
+            return tokenEnhancerChain;
         }
 
     }
