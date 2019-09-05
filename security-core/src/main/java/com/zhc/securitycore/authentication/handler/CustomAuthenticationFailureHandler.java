@@ -1,8 +1,8 @@
-package com.zhc.security.authentication.handler;
+package com.zhc.securitycore.authentication.handler;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zhc.security.properties.SecurityProperties;
+import com.zhc.securitycore.properties.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +12,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

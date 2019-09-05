@@ -24,7 +24,7 @@ public class TestController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    @PreAuthorize("hasAnyAuthority('admin')")
+    @PreAuthorize("hasAnyAuthority('user')")
     @GetMapping("/get_user/{username}")
     public String getUser(@PathVariable String username) {
         return username;

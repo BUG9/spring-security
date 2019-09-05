@@ -1,19 +1,17 @@
-package com.zhc.security.authentication.sms;
+package com.zhc.securitycore.authentication.sms;
 
 
-import com.zhc.security.exception.ValidateCodeException;
-import com.zhc.security.properties.SecurityConstants;
-import com.zhc.security.properties.SecurityProperties;
+import com.zhc.securitycore.exception.ValidateCodeException;
+import com.zhc.securitycore.properties.SecurityConstants;
+import com.zhc.securitycore.properties.SecurityProperties;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.Resource;

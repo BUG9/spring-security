@@ -1,10 +1,9 @@
 package com.zhc.security.config;
 
-import com.zhc.security.authentication.FormAuthenticationConfig;
-import com.zhc.security.authentication.sms.SmsCodeAuthenticationSecurityConfig;
-import com.zhc.security.authentication.sms.ValidateCodeFilter;
-import com.zhc.security.properties.SecurityConstants;
-import com.zhc.security.properties.SecurityProperties;
+import com.zhc.securitycore.authentication.sms.SmsCodeAuthenticationSecurityConfig;
+import com.zhc.securitycore.authentication.sms.ValidateCodeFilter;
+import com.zhc.securitycore.properties.SecurityConstants;
+import com.zhc.securitycore.properties.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

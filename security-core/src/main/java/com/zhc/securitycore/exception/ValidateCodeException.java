@@ -1,4 +1,4 @@
-package com.zhc.security.exception;
+package com.zhc.securitycore.exception;
 
 
 import org.springframework.security.core.AuthenticationException;

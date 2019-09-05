@@ -1,4 +1,4 @@
-package com.zhc.security.properties;
+package com.zhc.securitycore.properties;
 
 import lombok.Data;
 

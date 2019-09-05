@@ -1,8 +1,8 @@
-package com.zhc.security.authentication;
+package com.zhc.security.config;
 
-import com.zhc.security.authentication.handler.CustomAuthenticationFailureHandler;
-import com.zhc.security.authentication.handler.CustomAuthenticationSuccessHandler;
-import com.zhc.security.properties.SecurityProperties;
+import com.zhc.securitycore.authentication.handler.CustomAuthenticationFailureHandler;
+import com.zhc.securitycore.authentication.handler.CustomAuthenticationSuccessHandler;
+import com.zhc.securitycore.properties.SecurityProperties;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.stereotype.Component;
 

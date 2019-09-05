@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9090
 
 
 # 做一个类似 security一样的默认登陆页面功能，进一步的理解 Spring Boot 的 默认配置含义及设计思想
@@ -15,6 +15,10 @@ spring:
     username: ${POSTGRES_USERNAME:root}
     password: ${POSTGRES_PASSWORD:zhao-324}
     driver-class-name:  com.mysql.jdbc.Driver
+  #配置oauth2过滤的优先级
+  oauth2:
+    resource:
+      filter-order: 101
 
   redis:
     host: 127.0.0.1

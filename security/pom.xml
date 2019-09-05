@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.zhc</groupId>
-            <artifactId>security-oauth2</artifactId>
+            <artifactId>security-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
