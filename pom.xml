@@ -17,9 +17,9 @@
     </properties>
 
     <modules>
-        <module>security</module>
-        <module>social</module>
-        <module>security-oauth2</module>
+        <module>security-oauth2-authorization</module>
+        <module>security-social</module>
+        <module>security-oauth2-authentication</module>
         <module>security-core</module>
     </modules>
 

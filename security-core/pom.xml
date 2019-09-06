@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
-            <!--请注意下 spring-security-oauth2 的版本 务必高于 2.3.2.RELEASE，这是官方的一个bug:
+            <!--请注意下 spring-authorization-oauth2 的版本 务必高于 2.3.2.RELEASE，这是官方的一个bug:
             java.lang.NoSuchMethodError: org.springframework.data.redis.connection.RedisConnection.set([B[B)V
             要求必须大于2.3.5 版本，官方解释：https://github.com/BUG9/spring-security/network/alert/pom.xml/org.springframework.security.oauth:spring-security-oauth2/open
             -->
