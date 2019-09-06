@@ -21,6 +21,7 @@
         <module>security-social</module>
         <module>security-oauth2-authentication</module>
         <module>security-core</module>
+        <module>security-sso-client</module>
     </modules>
 
     <dependencyManagement>

@@ -68,7 +68,10 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-        //允许表单认证
-        oauthServer.allowFormAuthenticationForClients();
+                    //允许表单认证
+        oauthServer.allowFormAuthenticationForClients()
+                    //公开了两个用于检查令牌的端点(/oauth/check_token和/oauth/token_key).默认情况下不会公开这些端点(具有访问权限“denyAll()”)
+                   .tokenKeyAccess("isAuthenticated()")
+                   .checkTokenAccess("permitAll()");
     }
 }
