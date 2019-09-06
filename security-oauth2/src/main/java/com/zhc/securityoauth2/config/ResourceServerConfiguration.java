@@ -1,5 +1,7 @@
 package com.zhc.securityoauth2.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -11,12 +13,15 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter;
+import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @author zhc
@@ -27,12 +32,21 @@ import javax.annotation.Resource;
 @EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    @Resource
-    private TokenStore jwtTokenStore;
+
+    private final Map<String,TokenStore> tokenStoreMap;
+
+
+    @Value("${spring.security.oauth2.storeType}")
+    private String storeType = "jwt";
+
+    @Autowired
+    public ResourceServerConfiguration(Map<String, TokenStore> tokenStoreMap) {
+        this.tokenStoreMap = tokenStoreMap;
+    }
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-        resources.tokenStore(jwtTokenStore);
+        resources.tokenStore(tokenStoreMap.get(storeType + "TokenStore"));
     }
 
     @Override

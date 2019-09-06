@@ -1,5 +1,7 @@
 package com.zhc.security.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +18,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @author zhc
@@ -29,14 +32,21 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Resource
     private AuthenticationManager authenticationManager;
 
-    @Resource
-    private TokenStore jwtTokenStore;
+    private final Map<String,TokenStore> tokenStoreMap;
 
     @Resource
     private AccessTokenConverter jwtAccessTokenConverter;
 
     @Resource
     private TokenEnhancerChain tokenEnhancerChain;
+
+    @Value("${spring.security.oauth2.storeType}")
+    private String storeType = "jwt";
+
+    @Autowired
+    public AuthorizationServerConfiguration(Map<String, TokenStore> tokenStoreMap) {
+        this.tokenStoreMap = tokenStoreMap;
+    }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -53,7 +63,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         // 设置token存储方式，这里提供redis和jwt
         endpoints
-                .tokenStore(jwtTokenStore)
+                .tokenStore(tokenStoreMap.get(storeType + "TokenStore"))
                 .accessTokenConverter(jwtAccessTokenConverter)
                 .tokenEnhancer(tokenEnhancerChain)
                 .authenticationManager(authenticationManager);
