@@ -1,6 +1,3 @@
-server:
-  port: 8091
-
 
 auth-server: http://localhost:9090 # authorization服务地址
 
@@ -8,10 +5,11 @@ auth-server: http://localhost:9090 # authorization服务地址
 security:
   oauth2:
     client:
-      client-id: clinet
-      client-secret: 123456
       user-authorization-uri: ${auth-server}/oauth/authorize #请求认证的地址
       access-token-uri: ${auth-server}/oauth/token #请求令牌的地址
     resource:
       jwt:
-        key-uri: ${auth-server}/oauth/token_key #解析jwt令牌所需要密钥的地址
+        key-uri: ${auth-server}/oauth/token_key #解析jwt令牌所需要密钥的地址,服务启动时会调用 授权服务该接口获取jwt key，所以务必保证授权服务正常
+spring:
+  profiles:
+    active: client1

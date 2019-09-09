@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -48,11 +49,20 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         //配置一个客户端，支持客户端模式、密码模式和授权码模式
-        clients.inMemory().withClient("client")
+        clients.inMemory()
+                .withClient("client1")
                 .authorizedGrantTypes("client_credentials","password","authorization_code", "refresh_token")
                 .scopes("read")
-                .redirectUris("https://www.baidu.com/")
-                .authorities("client")
+                .redirectUris("http://localhost:8091/login")
+                // 自动授权，无需人工手动点击 approve
+                .autoApprove(true)
+                .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"))
+                .and()
+                .withClient("client2")
+                .authorizedGrantTypes("client_credentials","password","authorization_code", "refresh_token")
+                .scopes("read")
+                .redirectUris("http://localhost:8092/login")
+                .autoApprove(true)
                 .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"));
     }
 
@@ -68,10 +78,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-                    //允许表单认证
-        oauthServer.allowFormAuthenticationForClients()
-                    //公开了两个用于检查令牌的端点(/oauth/check_token和/oauth/token_key).默认情况下不会公开这些端点(具有访问权限“denyAll()”)
-                   .tokenKeyAccess("isAuthenticated()")
-                   .checkTokenAccess("permitAll()");
+        oauthServer// 开启/oauth/token_key验证端口无权限访问
+                .tokenKeyAccess("permitAll()")
+                // 开启/oauth/check_token验证端口认证权限访问
+                .checkTokenAccess("isAuthenticated()")
+                //允许表单认证    请求/oauth/token的，如果配置支持allowFormAuthenticationForClients的，且url中有client_id和client_secret的会走ClientCredentialsTokenEndpointFilter
+                .allowFormAuthenticationForClients();
     }
 }

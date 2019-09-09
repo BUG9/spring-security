@@ -79,7 +79,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(SecurityConstants.DEFAULT_PAGE_URL,
                         SecurityConstants.DEFAULT_LOGIN_PAGE_URL,
-                        "/send/sms/*","/oauth/*",
+                        "/send/sms/**","/oauth/**",
                         securityProperties.getLogin().getLoginErrorUrl()).permitAll()
                 .anyRequest().authenticated()
                 .and()

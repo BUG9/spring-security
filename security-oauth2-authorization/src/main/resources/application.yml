@@ -11,7 +11,7 @@ spring:
   application:
     name: authorization
   datasource:
-    url: jdbc:mysql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:3306}/authorization
+    url: jdbc:mysql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:3306}/security
     username: ${POSTGRES_USERNAME:root}
     password: ${POSTGRES_PASSWORD:zhao-324}
     driver-class-name:  com.mysql.jdbc.Driver

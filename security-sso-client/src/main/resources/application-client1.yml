@@ -1,0 +1,8 @@
+server:
+  port: 8091
+
+security:
+  oauth2:
+    client:
+      client-id: client1
+      client-secret: 123456

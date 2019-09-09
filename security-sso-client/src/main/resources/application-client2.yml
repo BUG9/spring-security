@@ -1,0 +1,9 @@
+server:
+  port: 8092
+
+
+security:
+  oauth2:
+    client:
+      client-id: client2
+      client-secret: 123456
