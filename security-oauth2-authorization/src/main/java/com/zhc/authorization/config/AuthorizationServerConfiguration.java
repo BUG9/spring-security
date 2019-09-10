@@ -2,10 +2,12 @@ package com.zhc.authorization.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -38,6 +40,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Resource
     private TokenEnhancerChain tokenEnhancerChain;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Value("${spring.security.oauth2.storeType}")
     private String storeType = "jwt";
 
@@ -56,14 +61,14 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .redirectUris("http://localhost:8091/login")
                 // 自动授权，无需人工手动点击 approve
                 .autoApprove(true)
-                .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"))
+                .secret(passwordEncoder.encode("123456"))
                 .and()
                 .withClient("client2")
                 .authorizedGrantTypes("client_credentials","password","authorization_code", "refresh_token")
                 .scopes("read")
                 .redirectUris("http://localhost:8092/login")
                 .autoApprove(true)
-                .secret(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode("123456"));
+                .secret(passwordEncoder.encode("123456"));
     }
 
     @Override

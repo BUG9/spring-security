@@ -10,6 +10,8 @@ security:
     resource:
       jwt:
         key-uri: ${auth-server}/oauth/token_key #解析jwt令牌所需要密钥的地址,服务启动时会调用 授权服务该接口获取jwt key，所以务必保证授权服务正常
+    sso:
+      login-path: /login
 spring:
   profiles:
     active: client1

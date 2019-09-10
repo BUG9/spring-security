@@ -1,6 +1,7 @@
 package com.zhc.securitycore.authentication.sms;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,10 +18,10 @@ import javax.annotation.Resource;
 /**
  * 短信验证码配置
  */
-@Component
+@Configuration
 public class SmsCodeAuthenticationSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
-    @Autowired
+    @Resource
     private AuthenticationSuccessHandler authenticationSuccessHandler ;
 
     @Autowired
@@ -34,7 +35,7 @@ public class SmsCodeAuthenticationSecurityConfig extends SecurityConfigurerAdapt
         SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter();
         smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 
-        //smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         smsCodeAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
         smsCodeAuthenticationFilter.setRememberMeServices(http
                 .getSharedObject(RememberMeServices.class));

@@ -3,6 +3,7 @@ package com.zhc.authorization.config;
 import com.zhc.securitycore.authentication.handler.CustomAuthenticationFailureHandler;
 import com.zhc.securitycore.authentication.handler.CustomAuthenticationSuccessHandler;
 import com.zhc.securitycore.properties.SecurityProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +14,7 @@ import javax.annotation.Resource;
  * @date 2019/8/14
  */
 
-@Component
+@Configuration
 public class FormAuthenticationConfig {
 
     @Resource
@@ -38,7 +39,8 @@ public class FormAuthenticationConfig {
                 // 注意3： 这里设置的 Url 是有默认无权限访问的
                 .loginProcessingUrl(securityProperties.getLogin().getLoginUrl())
                 //分别设置成功和失败的处理器
-                //.successHandler(customAuthenticationSuccessHandler) // 为了使得授权码模式能够正常使用，这里暂时屏蔽
+                // 成功处理器重构后可支持
+                .successHandler(customAuthenticationSuccessHandler)
                 .failureHandler(customAuthenticationFailureHandler);
     }
 

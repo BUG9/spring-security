@@ -18,7 +18,7 @@ spring:
   #配置oauth2过滤的优先级
   oauth2:
     resource:
-      filter-order: 101
+      filter-order: 3
 
   redis:
     host: 127.0.0.1

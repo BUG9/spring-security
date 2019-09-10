@@ -36,16 +36,22 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
                                         AuthenticationException exception) throws IOException {
 
         logger.info("登录失败");
+        String header = request.getHeader("Authorization");
+        // 是否以Basic开头
+        if (header == null || !header.startsWith("Basic ")) {
+            if (StringUtils.isEmpty(securityProperties.getLogin().getLoginErrorUrl())) {
 
-        if (StringUtils.isEmpty(securityProperties.getLogin().getLoginErrorUrl())){
+                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write(objectMapper.writeValueAsString(exception.getMessage()));
 
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write(objectMapper.writeValueAsString(exception.getMessage()));
-
+            } else {
+                // 跳转设置的登陆失败页面
+                redirectStrategy.sendRedirect(request, response, securityProperties.getLogin().getLoginErrorUrl());
+            }
         } else {
-            // 跳转设置的登陆失败页面
-            redirectStrategy.sendRedirect(request,response,securityProperties.getLogin().getLoginErrorUrl());
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\":\"false\",\"errMsg\":\"登陆失败，请检查验证码或手机号是否正确\"}");
         }
 
     }
