@@ -11,7 +11,13 @@ security:
       jwt:
         key-uri: ${auth-server}/oauth/token_key #解析jwt令牌所需要密钥的地址,服务启动时会调用 授权服务该接口获取jwt key，所以务必保证授权服务正常
     sso:
-      login-path: /login
+      login-path: /login #指向登录页面的路径，即OAuth2授权服务器触发重定向到客户端的路径 ，默认为 /login
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: OAUTH2CLIENTSESSION  # 解决  Possible CSRF detected - state parameter was required but no state could be found  问题
 spring:
   profiles:
     active: client1

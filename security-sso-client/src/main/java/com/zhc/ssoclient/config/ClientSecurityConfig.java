@@ -15,12 +15,11 @@ public class ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.antMatcher("/**")
-                .authorizeRequests()
-                .antMatchers("/", "/login**")
-                .permitAll()
-                .anyRequest()
-                .authenticated();
+        http.authorizeRequests()
+                .antMatchers("/","/error","/login").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable();
     }
 
 }

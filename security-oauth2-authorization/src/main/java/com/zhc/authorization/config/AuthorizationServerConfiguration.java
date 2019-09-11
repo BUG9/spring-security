@@ -32,12 +32,15 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Resource
     private AuthenticationManager authenticationManager;
 
-    private final Map<String,TokenStore> tokenStoreMap;
+    private final Map<String, TokenStore> tokenStoreMap;
 
-    @Resource
+    @Autowired(required = false)
     private AccessTokenConverter jwtAccessTokenConverter;
 
-    @Resource
+    /**
+     *  由于存储策略时根据配置指定的，当使用redis策略时，tokenEnhancerChain 是没有被注入的，所以这里设置成 required = false
+      */
+    @Autowired(required = false)
     private TokenEnhancerChain tokenEnhancerChain;
 
     @Autowired
@@ -56,7 +59,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         //配置一个客户端，支持客户端模式、密码模式和授权码模式
         clients.inMemory()
                 .withClient("client1")
-                .authorizedGrantTypes("client_credentials","password","authorization_code", "refresh_token")
+                .authorizedGrantTypes("client_credentials", "password", "authorization_code", "refresh_token")
                 .scopes("read")
                 .redirectUris("http://localhost:8091/login")
                 // 自动授权，无需人工手动点击 approve
@@ -64,7 +67,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .secret(passwordEncoder.encode("123456"))
                 .and()
                 .withClient("client2")
-                .authorizedGrantTypes("client_credentials","password","authorization_code", "refresh_token")
+                .authorizedGrantTypes("client_credentials", "password", "authorization_code", "refresh_token")
                 .scopes("read")
                 .redirectUris("http://localhost:8092/login")
                 .autoApprove(true)
@@ -76,9 +79,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         // 设置token存储方式，这里提供redis和jwt
         endpoints
                 .tokenStore(tokenStoreMap.get(storeType + "TokenStore"))
-                .accessTokenConverter(jwtAccessTokenConverter)
-                .tokenEnhancer(tokenEnhancerChain)
                 .authenticationManager(authenticationManager);
+        if ("jwt".equalsIgnoreCase(storeType)) {
+            endpoints.accessTokenConverter(jwtAccessTokenConverter)
+                    .tokenEnhancer(tokenEnhancerChain);
+        }
     }
 
     @Override

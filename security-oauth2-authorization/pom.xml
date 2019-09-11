@@ -22,15 +22,30 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.zhc</groupId>
-            <artifactId>social</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+        <!-- 这里去掉 spring-security-oauth2 主要是其内部的版本是 低于2.3.5
+        (security-core 本身 引用的就是 2.3.5 ，但为什么这边看到的却是低于其版本，暂时没找到原因，可能统一版本管理 platform-bom 的问题吧)
+         ，为了防止出现异常这里去掉，再单独引用-->
         <dependency>
             <groupId>com.zhc</groupId>
             <artifactId>security-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.security.oauth</groupId>
+                    <artifactId>spring-security-oauth2</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- 不是starter,手动配置 -->
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+            <!--请注意下 spring-authorization-oauth2 的版本 务必高于 2.3.2.RELEASE，这是官方的一个bug:
+            java.lang.NoSuchMethodError: org.springframework.data.redis.connection.RedisConnection.set([B[B)V
+            要求必须大于2.3.5 版本，官方解释：https://github.com/BUG9/spring-security/network/alert/pom.xml/org.springframework.security.oauth:spring-security-oauth2/open
+            -->
+            <version>2.3.5.RELEASE</version>
         </dependency>
     </dependencies>
 

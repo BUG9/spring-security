@@ -19,4 +19,6 @@ public class SecurityProperties {
 
     private SmsProperties sms = new SmsProperties();
 
+    private OAuth2Properties oauth2 = new OAuth2Properties();
+
 }

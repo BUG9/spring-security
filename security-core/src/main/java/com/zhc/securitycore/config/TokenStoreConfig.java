@@ -1,6 +1,8 @@
 package com.zhc.securitycore.config;
 
+import com.zhc.securitycore.properties.SecurityProperties;
 import com.zhc.securitycore.token.JwtTokenEnhance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,9 +33,6 @@ public class TokenStoreConfig {
     @Resource
     private RedisConnectionFactory redisConnectionFactory;
 
-    @Value("${spring.security.oauth2.jwt.SigningKey}")
-    private String signingKey = "oauth2";
-
     /**
      * 使用redisTokenStore存储token
      *
@@ -51,50 +50,62 @@ public class TokenStoreConfig {
     }
 
     /**
-     * 使用jwtTokenStore存储token
-     * 这里通过 matchIfMissing = true 设置默认使用 jwtTokenStore
-     * @return tokenStore
+     * jwt的配置
+     *
+     * 使用jwt时的配置，默认生效
      */
-    @Bean
+    @Configuration
     @ConditionalOnProperty(prefix = "spring.security.oauth2", name = "storeType", havingValue = "jwt", matchIfMissing = true)
-    public TokenStore jwtTokenStore() {
-        return new JwtTokenStore(jwtAccessTokenConverter());
-    }
+    public static class JwtTokenConfig {
 
-    /**
-     * 用于生成jwt
-     *
-     * @return JwtAccessTokenConverter
-     */
-    @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        JwtAccessTokenConverter accessTokenConverter = new JwtAccessTokenConverter();
-        //生成签名的key,这里使用对称加密
-        accessTokenConverter.setSigningKey(signingKey);
-        return accessTokenConverter;
-    }
+        @Resource
+        private SecurityProperties securityProperties;
+        /**
+         * 使用jwtTokenStore存储token
+         * 这里通过 matchIfMissing = true 设置默认使用 jwtTokenStore
+         *
+         * @return tokenStore
+         */
+        @Bean
+        public TokenStore jwtTokenStore() {
+            return new JwtTokenStore(jwtAccessTokenConverter());
+        }
 
-    /**
-     * 用于扩展JWT
-     *
-     * @return TokenEnhancer
-     */
-    @Bean
-    @ConditionalOnMissingBean(name = "jwtTokenEnhancer")
-    public TokenEnhancer jwtTokenEnhancer() {
-        return new JwtTokenEnhance();
-    }
+        /**
+         * 用于生成jwt
+         *
+         * @return JwtAccessTokenConverter
+         */
+        @Bean
+        public JwtAccessTokenConverter jwtAccessTokenConverter() {
+            JwtAccessTokenConverter accessTokenConverter = new JwtAccessTokenConverter();
+            //生成签名的key,这里使用对称加密
+            accessTokenConverter.setSigningKey(securityProperties.getOauth2().getJwtSigningKey());
+            return accessTokenConverter;
+        }
 
-    /**
-     * 自定义token扩展链
-     *
-     * @return tokenEnhancerChain
-     */
-    @Bean
-    public TokenEnhancerChain tokenEnhancerChain() {
-        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(new JwtTokenEnhance(), jwtAccessTokenConverter()));
-        return tokenEnhancerChain;
+        /**
+         * 用于扩展JWT
+         *
+         * @return TokenEnhancer
+         */
+        @Bean
+        @ConditionalOnMissingBean(name = "jwtTokenEnhancer")
+        public TokenEnhancer jwtTokenEnhancer() {
+            return new JwtTokenEnhance();
+        }
+
+        /**
+         * 自定义token扩展链
+         *
+         * @return tokenEnhancerChain
+         */
+        @Bean
+        public TokenEnhancerChain tokenEnhancerChain() {
+            TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+            tokenEnhancerChain.setTokenEnhancers(Arrays.asList(new JwtTokenEnhance(), jwtAccessTokenConverter()));
+            return tokenEnhancerChain;
+        }
     }
 }
 
