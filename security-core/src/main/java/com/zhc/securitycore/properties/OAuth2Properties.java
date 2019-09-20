@@ -23,4 +23,9 @@ public class OAuth2Properties {
      * jwt的签名
      */
     private String jwtSigningKey = "oauth2";
+
+    /**
+     * socialFilter 拦截地址
+     */
+    private String filterProcessesUrl = "/login";
 }

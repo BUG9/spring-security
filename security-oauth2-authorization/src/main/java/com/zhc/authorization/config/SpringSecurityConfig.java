@@ -7,6 +7,7 @@ import com.zhc.securitycore.properties.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.social.security.SpringSocialConfigurer;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -46,6 +48,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
 
+    @Resource
+    private SpringSocialConfigurer  securitySpringSocialConfigurer;
+
 
     @Bean
     @Override
@@ -70,10 +75,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(validateCodeFilter, AbstractPreAuthenticatedProcessingFilter.class)
                 .apply(smsCodeAuthenticationSecurityConfig)
                 .and()
+                // social 社交登陆配置引入
+                .apply(securitySpringSocialConfigurer)
+                .and()
                 .authorizeRequests()
                 .antMatchers(SecurityConstants.DEFAULT_PAGE_URL,
                         SecurityConstants.DEFAULT_LOGIN_PAGE_URL,
-                        "/send/sms/**","/oauth/**",
+                        "/send/sms/**","/oauth/**","/socialRegister",
                         securityProperties.getLogin().getLoginErrorUrl()).permitAll()
                 .anyRequest().authenticated()
                 .and()

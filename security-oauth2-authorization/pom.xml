@@ -37,6 +37,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.zhc</groupId>
+            <artifactId>security-social</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- 不是starter,手动配置 -->
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
