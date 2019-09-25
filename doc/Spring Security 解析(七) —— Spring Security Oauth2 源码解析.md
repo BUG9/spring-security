@@ -34,7 +34,7 @@
 &emsp;&emsp;按照官方提示，我们开始源码解析。（个人建议: 在看源码前最好先去看下官方文档，能够减少不必要的时间）
 
 
-### 一 @EnableAuthorizationServer 解析
+### 一、 @EnableAuthorizationServer 解析
 
 &emsp;&emsp;我们都知道 一个授权认证服务器最最核心的就是 @EnableAuthorizationServer ， 那么 @EnableAuthorizationServer 主要做了什么呢？ 我们看下   @EnableAuthorizationServer 源码：
 
@@ -51,7 +51,8 @@
   
 &emsp;&emsp; 我们可以看到其源码内部导入了  **AuthorizationServerEndpointsConfiguration**  和  **AuthorizationServerSecurityConfiguration** 这2个配置类。 接下来我们分别看下这2个配置类具体做了什么。
 
-#### 一  AuthorizationServerEndpointsConfiguration
+
+#### （一）、  AuthorizationServerEndpointsConfiguration
 
 &emsp;&emsp; 从这个配置类的名称我们不难想象其内部肯定存在官方文档中介绍的  **AuthorizationEndpoint** 和  **TokenEndpoint** ，那么我们通过源码来印证下吧：
 
@@ -105,7 +106,7 @@
 
 &emsp;&emsp; 这里就不先解析  AuthorizationEndpoint 和  TokenEndpoint 源码了，在下面我会专门解析的。
 
-#### 二  AuthorizationServerSecurityConfiguration
+#### （二）、  AuthorizationServerSecurityConfiguration
 
 &emsp;&emsp;  AuthorizationServerSecurityConfiguration 由于配置相对复杂，这里就不再贴源码了介绍了。但其中最主要的配置  **ClientDetailsService**  、  **ClientDetailsUserDetailsService**  以及 **ClientCredentialsTokenEndpointFilter** 还是得讲一讲。 
 &emsp;&emsp; 这里介绍下 ClientDetailsUserDetailsService 、UserDetailsService、ClientDetailsService 3者之间的关系：
@@ -119,7 +120,7 @@
  
  
 
-### 二 @EnableResourceServer 解析
+### 二、 @EnableResourceServer 解析
 
 &emsp;&emsp;像授权认证服务器一样，资源服务器也有一个最核心的配置 @EnableResourceServer  ， 那么 @EnableResourceServer 主要做了什么呢？ 我们 一样先看下  @EnableResourceServer 源码：
 
@@ -196,7 +197,7 @@ public @interface EnableResourceServer {
 - 3、 将 OAuth2AuthenticationProcessingFilter 过滤器添加到过滤器链上
 
 
- ### 三  AuthorizationEndpoint 解析
+ ### 三、  AuthorizationEndpoint 解析
  
 &emsp;&emsp; 正如前面介绍一样，AuthorizationEndpoint  本身 最大的功能点就是实现了  /oauth/authorize  ， 那么我们这次就来看看它是如何实现的：
 
@@ -286,7 +287,7 @@ public @interface EnableResourceServer {
  
 &emsp;&emsp;生成授权码的整个逻辑其实是相对简单的，真正复杂的是token的生成逻辑，那么接下来我们就看看token的生成。
   
- ### 四  TokenEndpoint 解析
+ ### 四、  TokenEndpoint 解析
  
  &emsp;&emsp; 对于使用oauth2 的用户来说，最最不可避免的就是token 的获取，话不多说，源码解析贴上：
  
@@ -354,8 +355,11 @@ public @interface EnableResourceServer {
 
    ``` 
 
-&emsp;&emsp; 官方默认调用 **CompositeTokenGranter** 的 grant()方法，从源码中我们可以看到其聚合了 TokenGranter ，采用遍历的方式一个一个的去尝试，由于Oauth2 有4种模式外加token刷新，所以 官方目前有5个子类，分别是： AuthorizationCodeTokenGranter、ClientCredentialsTokenGranter、ImplicitTokenGranter、RefreshTokenGranter、ResourceOwnerPasswordTokenGranter ，以及一个他们共同实现的 AbstractTokenGranter。
-其中除了 ClientCredentialsTokenGranter 重写了 AbstractTokenGranter.grant() 方法以外，其他4中都是直接调用   AbstractTokenGranter.grant()   进行处理。 物品们来看下 AbstractTokenGranter.grant()  其方法内部实现：
+&emsp;&emsp; 官方默认调用 **CompositeTokenGranter** 的 grant()方法，从源码中我们可以看到其聚合了 TokenGranter ，采用遍历的方式一个一个的去尝试，由于Oauth2 有4种模式外加token刷新，所以 官方目前有5个子类。
+&emsp;&emsp; Debug 看下 tokenGranters ：
+![http://ww1.sinaimg.cn/large/005Q13r0gy1g7bpn79kv3j30up0ejdhw.jpg](http://ww1.sinaimg.cn/large/005Q13r0gy1g7bpn79kv3j30up0ejdhw.jpg)
+&emsp;&emsp;从截图中可以看出分别是： AuthorizationCodeTokenGranter、ClientCredentialsTokenGranter、ImplicitTokenGranter、RefreshTokenGranter、ResourceOwnerPasswordTokenGranter ，当然还有一个他们共同的 父类 AbstractTokenGranter。
+其中除了 ClientCredentialsTokenGranter 重写了 AbstractTokenGranter.grant() 方法以外，其他4中都是直接调用   AbstractTokenGranter.grant()   进行处理。 我们来看下 AbstractTokenGranter.grant()  其方法内部实现：
 
    ``` 
 
@@ -461,12 +465,12 @@ public @interface EnableResourceServer {
 
 &emsp;&emsp; 这里可能有人会问怎么不直接使用原本通过code 获取的 OAuth2Authentication 对象，这里我也不清楚，如果有同学清楚麻烦告知以下，谢谢！！
 
-OAuth2Authentication 对象生成后会调用 tokenServices.createAccessToken()，我们来看下 官方默认提供 的 DefaultTokenServices 的 createAccessToken 方法内部实现源码：
+OAuth2Authentication 对象生成后会调用 tokenServices.createAccessToken()，我们来看下 官方默认提供 的 DefaultTokenServices(AuthorizationServerTokenServices 实现类) 的 createAccessToken 方法内部实现源码：
 
    ```
     @Transactional
 	public OAuth2AccessToken createAccessToken(OAuth2Authentication authentication) throws AuthenticationException {
-
+        // 1、 通过 tokenStore 获取到之前存在的token 并判断是否为空、过期，不为空且未过期则直接返回原有存在的token （由于我们常用Jwt 所以这里是 JwtTokenStore ，且 existingAccessToken 永远为空，即每次请求获取token的值均不同，这与RedisTokenStore 是有区别的）
 		OAuth2AccessToken existingAccessToken = tokenStore.getAccessToken(authentication);
 		OAuth2RefreshToken refreshToken = null;
 		if (existingAccessToken != null) {
@@ -478,32 +482,24 @@ OAuth2Authentication 对象生成后会调用 tokenServices.createAccessToken()�
 				tokenStore.removeAccessToken(existingAccessToken);
 			}
 			else {
-				// Re-store the access token in case the authentication has changed
 				tokenStore.storeAccessToken(existingAccessToken, authentication);
 				return existingAccessToken;
 			}
 		}
-
-		// Only create a new refresh token if there wasn't an existing one
-		// associated with an expired access token.
-		// Clients might be holding existing refresh tokens, so we re-use it in
-		// the case that the old access token
-		// expired.
+        // 2、 调用 createRefreshToken 方法生成 refreshToken
 		if (refreshToken == null) {
 			refreshToken = createRefreshToken(authentication);
-		}
-		// But the refresh token itself might need to be re-issued if it has
-		// expired.
-		else if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
+		}else if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
 			ExpiringOAuth2RefreshToken expiring = (ExpiringOAuth2RefreshToken) refreshToken;
 			if (System.currentTimeMillis() > expiring.getExpiration().getTime()) {
 				refreshToken = createRefreshToken(authentication);
 			}
 		}
-
+        
+        // 3、 调用  createAccessToken(authentication, refreshToken) 方法获取 token
 		OAuth2AccessToken accessToken = createAccessToken(authentication, refreshToken);
 		tokenStore.storeAccessToken(accessToken, authentication);
-		// In case it was modified
+		// 4、 重新覆盖原有的刷新token（原有的 refreshToken 为UUID 数据，覆盖为 jwtToken）
 		refreshToken = accessToken.getRefreshToken();
 		if (refreshToken != null) {
 			tokenStore.storeRefreshToken(refreshToken, authentication);
@@ -513,43 +509,367 @@ OAuth2Authentication 对象生成后会调用 tokenServices.createAccessToken()�
 	}
 	
    ```
+&emsp;&emsp; 我们从源码中可以看到，整个 createAccessToken  分4个步骤：
+
+- 1、 通过 tokenStore 获取到之前存在的token 并判断是否为空、过期，不为空且未过期则直接返回原有存在的token （由于我们常用Jwt 所以这里是 JwtTokenStore ，且 existingAccessToken 永远为空，即每次请求获取token的值均不同，这与RedisTokenStore 是有区别的）
+- 2、 调用 createRefreshToken 方法生成 refreshToken
+- **3、 调用  createAccessToken(authentication, refreshToken) 方法获取 token**
+- 4、 重新覆盖原有的刷新token（原有的 refreshToken 为UUID 数据，覆盖为 jwtToken）并返回token
 
 
+&emsp;&emsp; 在现在为止我们还没有看到token的生成代码，不要灰心，立马就能看到了 ，我们在看下步骤3 其 重载方法 createAccessToken(authentication, refreshToken) 源码：
 
 
-   
+   ```
+	private OAuth2AccessToken createAccessToken(OAuth2Authentication authentication, OAuth2RefreshToken refreshToken) {
+	    // 1、 通过 UUID 创建  DefaultOAuth2AccessToken  并设置上有效时长等信息
+		DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(UUID.randomUUID().toString());
+		int validitySeconds = getAccessTokenValiditySeconds(authentication.getOAuth2Request());
+		if (validitySeconds > 0) {
+			token.setExpiration(new Date(System.currentTimeMillis() + (validitySeconds * 1000L)));
+		}
+		token.setRefreshToken(refreshToken);
+		token.setScope(authentication.getOAuth2Request().getScope());
+        // 2、 判断 是否存在 token增强器 accessTokenEnhancer ，存在则调用增强器增强方法
+		return accessTokenEnhancer != null ? accessTokenEnhancer.enhance(token, authentication) : token;
+	}
+   ```
+&emsp;&emsp;  从源码来看，其实token就是通过UUID生成的，且生成过程很简单，但 如果我们配置了token增强器 （TokenEnhancer）（对于jwtToken来说，其毋庸置疑的使用了增强器实现），所以我们还得看下增强器是如何实现的，不过在讲解增强器的实现时，我们还得回顾下之前我们在TokenStoreConfig 配置过以下代码：
+
+   ```
+        /**
+         * 自定义token扩展链
+         *
+         * @return tokenEnhancerChain
+         */
+        @Bean
+        public TokenEnhancerChain tokenEnhancerChain() {
+            TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+            tokenEnhancerChain.setTokenEnhancers(Arrays.asList(new JwtTokenEnhance(), jwtAccessTokenConverter()));
+            return tokenEnhancerChain;
+        }
+   ```
+&emsp;&emsp;  这段代码  配置了 tokenEnhancerChain  （TokenEnhancer实现类），并且在 tokenEnhancerChain对象中添加了2个   TokenEnhance ，分别是 JwtAccessTokenConverter 以及一个我们自定义的 增强器 JwtTokenEnhance ，所以看到这里应该能够明白 最终会调用 tokenEnhancerChain ，不用想，tokenEnhancerChain肯定会遍历 其内部维护的 TokenEnhanceList进行token增强，查看 tokenEnhancerChain 源码如下：
  
+   ```
+public class TokenEnhancerChain implements TokenEnhancer {
+
+	private List<TokenEnhancer> delegates = Collections.emptyList();
+
+	/**
+	 * @param delegates the delegates to set
+	 */
+	public void setTokenEnhancers(List<TokenEnhancer> delegates) {
+		this.delegates = delegates;
+	}
+
+	/**
+	 * Loop over the {@link #setTokenEnhancers(List) delegates} passing the result into the next member of the chain.
+	 * 
+	 * @see org.springframework.security.oauth2.provider.token.TokenEnhancer#enhance(org.springframework.security.oauth2.common.OAuth2AccessToken,
+	 * org.springframework.security.oauth2.provider.OAuth2Authentication)
+	 */
+	public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
+		OAuth2AccessToken result = accessToken;
+		for (TokenEnhancer enhancer : delegates) {
+			result = enhancer.enhance(result, authentication);
+		}
+		return result;
+	}
+
+}
+   ```
+   
+&emsp;&emsp; 至于其增强器实现代码这里就不再贴出了。至此，个人觉得整个获取token的源码解析基本上完成。如果非得要总结的话 请看下图：
+
+![http://ww1.sinaimg.cn/large/005Q13r0gy1g7bi1lotm8j31bo0o014l.jpg](http://ww1.sinaimg.cn/large/005Q13r0gy1g7bi1lotm8j31bo0o014l.jpg)
 
 
 
+### 五、 OAuth2AuthenticationProcessingFilter （资源服务器认证）解析
+
+&emsp;&emsp;通过前面的解析我们最终获取到了token，但获取token 不是我们最终目的，我们最终的目的时拿到资源信息，所以我们还得通过获取到的token去调用资源服务器接口获取资源数据。那么接下来我们就来解析资源服务器是如何通过传入token去辨别用户并允许返回资源信息的。我们知道资源服务器在过滤器链新增了 OAuth2AuthenticationProcessingFilter 来拦截请求并认证，那就这个过滤器的实现：
+
+   ```
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
+			ServletException {
+
+		final boolean debug = logger.isDebugEnabled();
+		final HttpServletRequest request = (HttpServletRequest) req;
+		final HttpServletResponse response = (HttpServletResponse) res;
+
+		try {
+            // 1、 调用 tokenExtractor.extract() 方法从请求中解析出token信息并存放到 authentication 的  principal 字段 中
+			Authentication authentication = tokenExtractor.extract(request);
+			
+			if (authentication == null) {
+				if (stateless && isAuthenticated()) {
+					if (debug) {
+						logger.debug("Clearing security context.");
+					}
+					SecurityContextHolder.clearContext();
+				}
+				if (debug) {
+					logger.debug("No token in request, will continue chain.");
+				}
+			}
+			else {
+				request.setAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_VALUE, authentication.getPrincipal());
+				if (authentication instanceof AbstractAuthenticationToken) {
+					AbstractAuthenticationToken needsDetails = (AbstractAuthenticationToken) authentication;
+					needsDetails.setDetails(authenticationDetailsSource.buildDetails(request));
+				}
+				// 2、 调用  authenticationManager.authenticate() 认证过程： 注意此时的  authenticationManager 是 OAuth2AuthenticationManager 
+				Authentication authResult = authenticationManager.authenticate(authentication);
+
+				if (debug) {
+					logger.debug("Authentication success: " + authResult);
+				}
+
+				eventPublisher.publishAuthenticationSuccess(authResult);
+				SecurityContextHolder.getContext().setAuthentication(authResult);
+
+			}
+		}
+		catch (OAuth2Exception failed) {
+			SecurityContextHolder.clearContext();
+			eventPublisher.publishAuthenticationFailure(new BadCredentialsException(failed.getMessage(), failed),
+					new PreAuthenticatedAuthenticationToken("access-token", "N/A"));
+					
+			authenticationEntryPoint.commence(request, response,
+					new InsufficientAuthenticationException(failed.getMessage(), failed));
+
+			return;
+		}
+        
+		chain.doFilter(request, response);
+	}
+   ```
+   
+&emsp;&emsp; 整个filter步骤最核心的是下面2个：
+
+- 1、 调用 tokenExtractor.extract() 方法从请求中解析出token信息并存放到 authentication 的  principal 字段 中
+- **2、 调用  authenticationManager.authenticate() 认证过程： 注意此时的  authenticationManager 是 OAuth2AuthenticationManager **
+
+&emsp;&emsp; 在解析@EnableResourceServer 时我们讲过 OAuth2AuthenticationManager 与 OAuth2AuthenticationProcessingFilter 的关系，这里不再重述，我们直接看下 OAuth2AuthenticationManager 的 authenticate() 方法实现：
+
+ 
+   ```   
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
+		if (authentication == null) {
+			throw new InvalidTokenException("Invalid token (token not found)");
+		}
+		// 1、 从 authentication 中获取 token
+		String token = (String) authentication.getPrincipal();
+		// 2、 调用 tokenServices.loadAuthentication() 方法  通过 token 参数获取到 OAuth2Authentication 对象 ，这里的tokenServices 就是我们资源服务器配置的。
+		OAuth2Authentication auth = tokenServices.loadAuthentication(token);
+		if (auth == null) {
+			throw new InvalidTokenException("Invalid token: " + token);
+		}
+
+		Collection<String> resourceIds = auth.getOAuth2Request().getResourceIds();
+		if (resourceId != null && resourceIds != null && !resourceIds.isEmpty() && !resourceIds.contains(resourceId)) {
+			throw new OAuth2AccessDeniedException("Invalid token does not contain resource id (" + resourceId + ")");
+		}
+        // 3、 检测客户端信息，由于我们采用授权服务器和资源服务器分离的设计，所以这个检测方法实际没有检测
+		checkClientDetails(auth);
+
+		if (authentication.getDetails() instanceof OAuth2AuthenticationDetails) {
+			OAuth2AuthenticationDetails details = (OAuth2AuthenticationDetails) authentication.getDetails();
+			// Guard against a cached copy of the same details
+			if (!details.equals(auth.getDetails())) {
+				// Preserve the authentication details from the one loaded by token services
+				details.setDecodedDetails(auth.getDetails());
+			}
+		}
+		// 4、 设置认证成功标识并返回
+		auth.setDetails(authentication.getDetails());
+		auth.setAuthenticated(true);
+		return auth;
+
+	}
+	
+   ```
+   
+&emsp;&emsp;  整个   认证逻辑分4步：
+
+- 1、 从 authentication 中获取 token
+- 2、 调用 tokenServices.loadAuthentication() 方法  通过 token 参数获取到 OAuth2Authentication 对象 ，这里的tokenServices 就是我们资源服务器配置的。
+- 3、 检测客户端信息，由于我们采用授权服务器和资源服务器分离的设计，所以这个检测方法实际没有检测
+- 4、 设置认证成功标识并返回 ，注意返回的是  OAuth2Authentication （Authentication 子类）。
+
+&emsp;&emsp; 后面的授权过程就是原汁原味的Security授权，所以至此整个资源服务器 通过获取到的token去调用接口获取资源数据  的解析完成。
+
+
+### 六、 重写登陆，实现登录接口直接返回jwtToken
+
+&emsp;&emsp; 前面，我们花了大量时间讲解，那么肯定得实践实践一把。 相信大家平时的登录接口都是直接返回token的，但是由于Security 最原本的设计原因，登陆后都是跳转回到之前求情的接口，这种方式仅仅适用于PC端，那如果是APP呢？所以我们想要在原有的登陆接口上实现当非PC请求时返回token的功能。还记得之前提到过的 AuthenticationSuccessHandler 认证成功处理器，我们的功能实现就在这里面。
+
+&emsp;&emsp; 我们重新回顾下  /oauth/authorize  实现 token，模仿实现后的代码如下：
+
+   ```
+   
+@Component("customAuthenticationSuccessHandler")
+@Slf4j
+public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+
+    @Resource
+    private SecurityProperties securityProperties;
+
+    @Resource
+    private ObjectMapper objectMapper;
+
+    @Resource
+    private PasswordEncoder passwordEncoder;
+
+    private ClientDetailsService clientDetailsService = null;
+
+    private AuthorizationServerTokenServices authorizationServerTokenServices = null;
+
+    private RequestCache requestCache = new HttpSessionRequestCache();
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
+        logger.info("登录成功");
+        // 重构后使得成功处理器能够根据不同的请求来区别是返回token还是调用原来的逻辑（比如授权模式就需要跳转）
+        // 获取请求头中的Authorization
+
+        String header = request.getHeader("Authorization");
+        // 是否以Basic开头
+        if (header == null || !header.startsWith("Basic ")) {
+            // 为了授权码模式 登陆正常跳转，这里就不再跳转到自定义的登陆成功页面了
+//            // 如果设置了loginSuccessUrl，总是跳到设置的地址上
+//            // 如果没设置，则尝试跳转到登录之前访问的地址上，如果登录前访问地址为空，则跳到网站根路径上
+//            if (!StringUtils.isEmpty(securityProperties.getLogin().getLoginSuccessUrl())) {
+//                requestCache.removeRequest(request, response);
+//                setAlwaysUseDefaultTargetUrl(true);
+//                setDefaultTargetUrl(securityProperties.getLogin().getLoginSuccessUrl());
+//            }
+            super.onAuthenticationSuccess(request, response, authentication);
+        } else {
+
+            // 这里为什么要通过 SpringContextUtil 获取bean，
+            // 主要原因是如果直接在 依赖注入 会导致 AuthorizationServerConfiguration 和 SpringSecurityConfig 配置加载顺序混乱
+            // 最直接的表现在 AuthorizationServerConfiguration 中 authenticationManager 获取到 为null，因为这个时候 SpringSecurityConfig 还没加载创建
+            // 这里采用这种方式会有一定的性能问题，但也是无赖之举  有兴趣的同学可以看下： https://blog.csdn.net/qq_36732557/article/details/80338570 和 https://blog.csdn.net/forezp/article/details/84313907
+            if (clientDetailsService == null && authorizationServerTokenServices == null) {
+                clientDetailsService = SpringContextUtil.getBean(ClientDetailsService.class);
+                authorizationServerTokenServices = SpringContextUtil.getBean(AuthorizationServerTokenServices.class);
+            }
+
+            String[] tokens = extractAndDecodeHeader(header, request);
+            assert tokens.length == 2;
+
+            String clientId = tokens[0];
+
+            String clientSecret = tokens[1];
+
+            ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
+
+            if (clientDetails == null) {
+                throw new UnapprovedClientAuthenticationException("clientId对应的配置信息不存在:" + clientId);
+            } else if (!passwordEncoder.matches(clientSecret, clientDetails.getClientSecret())) {
+                throw new UnapprovedClientAuthenticationException("clientSecret不匹配:" + clientId);
+            }
+
+            TokenRequest tokenRequest = new TokenRequest(MapUtils.EMPTY_MAP,
+                    clientId,
+                    clientDetails.getScope(),
+                    "custom");
+
+            OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
+
+            OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request,
+                    authentication);
+
+            OAuth2AccessToken token = authorizationServerTokenServices.createAccessToken(oAuth2Authentication);
+
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(objectMapper.writeValueAsString(token));
+        }
+
+    }
+
+    /**
+     * 解析请求头拿到clientid  client secret的数组
+     *
+     * @param header
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    private String[] extractAndDecodeHeader(String header, HttpServletRequest request) throws IOException {
+
+        byte[] base64Token = header.substring(6).getBytes("UTF-8");
+        byte[] decoded;
+        try {
+            decoded = Base64.decode(base64Token);
+        } catch (IllegalArgumentException e) {
+            throw new BadCredentialsException("Failed to decode basic authentication token");
+        }
+
+        String token = new String(decoded, "UTF-8");
+
+        int delim = token.indexOf(":");
+
+        if (delim == -1) {
+            throw new BadCredentialsException("Invalid basic authentication token");
+        }
+        return new String[]{token.substring(0, delim), token.substring(delim + 1)};
+    }
+
+}
+
+   ```
+   
+&emsp;&emsp; 回顾下创建token 需要的 几个必要类：** clientDetailsService 、 authorizationServerTokenServices、 ClientDetails 、 TokenRequest 、OAuth2Request、 authentication、OAuth2Authentication **。 了解这几个类之间的关系很有必要。对于clientDetailsService 、 authorizationServerTokenServices 我们可以直接从Spring 容器中获取，ClientDetails 我们可以从请求参数中获取，有了 ClientDetails 就有了 TokenRequest，有了 TokenRequest 和 authentication(认证后肯定有的) 就有了 OAuth2Authentication ，有了OAuth2Authentication 就能够生成 OAuth2AccessToken。
+至此，我们通过直接请求登陆接口（注意在请求头中添加ClientDetails信息）就可以实现获取到token了，那么有同学会问，如果我是手机登陆方式呢？其实不管你什么登陆方式，只要你设置的登陆成功处理器是上面那个就可支持，下图是我测试的手机登陆获取token截图：
+
+![http://ww1.sinaimg.cn/large/005Q13r0gy1g7brramsjqj30rl0huwft.jpg](http://ww1.sinaimg.cn/large/005Q13r0gy1g7brramsjqj30rl0huwft.jpg)
+
+
+curl：
+
+   ```
+    curl -X POST \
+      'http://localhost/loginByMobile?mobile=15680659123&smsCode=215672' \
+      -H 'Accept: */*' \
+      -H 'Accept-Encoding: gzip, deflate' \
+      -H 'Authorization: Basic Y2xpZW50MToxMjM0NTY=' \
+      -H 'Cache-Control: no-cache' \
+      -H 'Connection: keep-alive' \
+      -H 'Content-Length: 0' \
+      -H 'Content-Type: application/json' \
+      -H 'Host: localhost' \
+      -H 'Postman-Token: 412722f9-b303-4d5d-b4a4-72b1dcb47f44,572f537f-c2f7-4c9c-a0e9-5e0eb07a3ec5' \
+      -H 'User-Agent: PostmanRuntime/7.17.1' \
+      -H 'cache-control: no-cache'
+   ```
+   
+&emsp;&emsp;  **注意： 请求头中添加ClientDetails信息** 
+
+
+### 七、 个人总结
+
+&emsp;&emsp; 个人觉得官方的这段描述是最好的总结：
+
+实现OAuth 2.0授权服务器，Spring Security过滤器链中需要以下端点：
+             
+- **AuthorizationEndpoint** 用于服务于授权请求。预设地址：/oauth/authorize。
+- **TokenEndpoint** 用于服务访问令牌的请求。预设地址：/oauth/token。
+             
+ &emsp;&emsp;实现OAuth 2.0资源服务器，需要以下过滤器：
+             
+-  **OAuth2AuthenticationProcessingFilter** 用于加载给定的认证访问令牌请求的认证。
+
+&emsp;&emsp; 源码解析的话，只要理解了下图中所有涉及到的类的作用即出发场景就基本上算是明白了：
+
+![http://ww1.sinaimg.cn/large/005Q13r0gy1g7bi1lotm8j31bo0o014l.jpg](http://ww1.sinaimg.cn/large/005Q13r0gy1g7bi1lotm8j31bo0o014l.jpg)
 
 
 
+&emsp;&emsp; 本文介绍  Spring Security Oauth2 源码解析  可以访问代码仓库中的 security 模块 ，项目的github 地址 : https://github.com/BUG9/spring-security 
 
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+&emsp;&emsp; &emsp;&emsp; &emsp;&emsp; **如果您对这些感兴趣，欢迎star、follow、收藏、转发给予支持！**
