@@ -32,4 +32,9 @@ public interface SecurityConstants {
      */
     String DEFAULT_LOGIN_PROCESSING_URL_MOBILE = "/loginByMobile";
 
+    /**
+     * 默认的集成第三方登陆请求处理url
+     */
+    String DEFAULT_INTEGRATION_PROCESSING_URL = "/integrationLogin/**";
+
 }
